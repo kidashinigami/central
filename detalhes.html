@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Detalhes do Cliente</title>
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+        }
+        h1 {
+            margin-bottom: 20px;
+        }
+        .detalhes {
+            display: inline-block;
+            text-align: left;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 15px;
+            background: #f9f9f9;
+        }
+        .detalhes p {
+            margin: 10px 0;
+        }
+        .voltar {
+            margin-top: 20px;
+        }
+    </style>
+    <script>
+        // Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQ16wB0HaXJo3-SmvsnMp-wJFC7X9l_Iw",
+            authDomain: "centralinformatica-e81ad.firebaseapp.com",
+            databaseURL: "https://centralinformatica-e81ad-default-rtdb.firebaseio.com",
+            projectId: "centralinformatica-e81ad",
+            storageBucket: "centralinformatica-e81ad.firebasestorage.app",
+            messagingSenderId: "311507862011",
+            appId: "1:311507862011:web:3ab2f37d6233a84be68b5e",
+            measurementId: "G-Z5GNLH6X7S"
+        };
+
+        // Inicializar Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Obter parâmetros da URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const clienteNome = urlParams.get('cliente');
+
+        function carregarDetalhes() {
+            if (!clienteNome) {
+                document.body.innerHTML = "<h1>Cliente não encontrado!</h1>";
+                return;
+            }
+
+            // Busca dados no Firebase
+            database.ref('tabela').once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const dados = snapshot.val();
+                    const cliente = dados.find(linha => linha.cliente === clienteNome);
+
+                    if (cliente) {
+                        document.getElementById('detalhes').innerHTML = `
+                            <div class="detalhes">
+                                <h1>Detalhes do Cliente</h1>
+                                <p><strong>Cliente:</strong> ${cliente.cliente}</p>
+                                <p><strong>Versão:</strong> ${cliente.versao}</p>
+                                <p><strong>Backup:</strong> ${cliente.backup}</p>
+                                <p><strong>Espaço Disco:</strong> ${cliente.espacoDisco}</p>
+                                <p><strong>Acesso:</strong> ${cliente.acesso}</p>
+                                <p><strong>Observação:</strong> ${cliente.observacao || "Nenhuma"}</p>
+                                <div class="voltar">
+                                    <a href="index.html" style="text-decoration: none; color: blue;">Voltar à Tabela</a>
+                                </div>
+                            </div>
+                        `;
+                    } else {
+                        document.body.innerHTML = "<h1>Cliente não encontrado no banco de dados!</h1>";
+                    }
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', carregarDetalhes);
+    </script>
+</head>
+<body>
+    <div id="detalhes">
+        <p>Carregando detalhes do cliente...</p>
+    </div>
+</body>
+</html>

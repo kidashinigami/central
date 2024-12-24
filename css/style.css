@@ -1,0 +1,15 @@
+.fundo {
+    
+    background-image: URL(../img/backgroud.jpg);
+}
+.tabela{
+    background-color: white;
+}
+.tabela th{
+    color: rgb(255, 255, 255);
+    background-color: blue;
+}
+.divisao {
+    float: right;
+    border: 2px;
+}

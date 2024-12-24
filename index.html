@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabela com Firebase</title>
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.10/firebase-database-compat.js"></script>
+
+    <script>
+        // 1. Configuração do Firebase
+        const firebaseConfig = {
+            apiKey: "AIzaSyCQ16wB0HaXJo3-SmvsnMp-wJFC7X9l_Iw",
+            authDomain: "centralinformatica-e81ad.firebaseapp.com",
+            databaseURL: "https://centralinformatica-e81ad-default-rtdb.firebaseio.com",
+            projectId: "centralinformatica-e81ad",
+            storageBucket: "centralinformatica-e81ad.firebasestorage.app",
+            messagingSenderId: "311507862011",
+            appId: "1:311507862011:web:3ab2f37d6233a84be68b5e",
+            measurementId: "G-Z5GNLH6X7S"
+            };
+
+        // Inicializar Firebase
+        const app = firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // 2. Função para carregar dados do Firebase
+        function carregarDados() {
+            const tabela = document.querySelector('#tabela-dados tbody');
+            tabela.innerHTML = ''; // Limpa a tabela antes de carregar os dados
+
+            database.ref('tabela').once('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    const dados = snapshot.val();
+
+                    // Adiciona os dados na tabela
+                    dados.forEach((linha, index) => {
+                        const novaLinha = `
+                            <tr>
+                                <td><a href="clientes/${linha.cliente}.html" target="_blank">${linha.cliente}</a></td>
+                                <td contenteditable="true">${linha.versao}</td>
+                                <td>
+                                    <select>
+                                        <option ${linha.backup === "FAZENDO" ? "selected" : ""}>FAZENDO</option>
+                                        <option ${linha.backup === "SASIONAL" ? "selected" : ""}>SASIONAL</option>
+                                        <option ${linha.backup === "NÃO FAZ" ? "selected" : ""}>NÃO FAZ</option>
+                                    </select>
+                                </td>
+                                <td contenteditable="true">${linha.espacoDisco}</td>
+                                <td contenteditable="true">${linha.acesso}</td>
+                                <td contenteditable="true">${linha.observacao}</td>
+                            </tr>`;
+                        tabela.innerHTML += novaLinha;
+                    });
+                } else {
+                    alert("Nenhum dado encontrado no Firebase!");
+                }
+            });
+        }
+
+        // 3. Função para salvar dados no Firebase
+        function salvarDados() {
+            const tabela = document.querySelectorAll('#tabela-dados tbody tr');
+            const dados = [];
+
+            tabela.forEach((linha) => {
+                const select = linha.cells[2].querySelector('select');  
+                dados.push({
+                    cliente: linha.cells[0].innerText,
+                    versao: linha.cells[1].innerText,
+                    backup: select.value,
+                    espacoDisco: linha.cells[3].innerText,
+                    acesso: linha.cells[4].innerText,
+                    observacao: linha.cells[5].innerText,
+                });
+            });
+
+            // Salva os dados no Firebase
+            database.ref('tabela').set(dados).then(() => {
+                alert('Dados salvos com sucesso no Firebase!');
+            }).catch((error) => {
+                console.error('Erro ao salvar os dados:', error);
+            });
+        }
+
+        // 4. Carregar dados ao abrir a página
+        document.addEventListener('DOMContentLoaded', carregarDados);
+    </script>
+</head>
+<body class="fundo">
+    <div>
+        <table border="2" width="900px" align="center" id="tabela-dados" class="tabela">
+            <thead>
+                <tr>
+                    <td colspan="6"><img src="img/CENTRAL.JPG" width="900px" height="100px"></td>
+                </tr>
+                <tr class="fonte1">
+                    <th>CLIENTE</th>
+                    <th>VERSÃO</th>
+                    <th>BACKUP</th>
+                    <th>ESPAÇO DISCO</th>
+                    <th>ACESSO</th>
+                    <th>OBSERVACAO</th>
+                    
+                </tr>
+            </thead>
+            <tbody>
+                <td> <a href="index.html"></a> ARLINDO ELOY</td>
+                    <td>24.10</td>
+                    <td>
+                        <select>
+                            <option>FAZENDO</option>
+                            <option>SASIONAL</option>
+                            <option>NÃO FAZ</option>
+                        </select>
+                    </td>
+                    <td>320GB</td>
+                    <td>215882786</td>
+                    <td></td>
+    
+                </td>
+            </tbody>
+        </table>
+    </div>
+    
+  
+
+    <!-- Botão Salvar -->
+    <div style="text-align: center; margin-top: 20px;">
+        <button onclick="salvarDados()" style="padding: 10px 20px; font-size: 16px;">Salvar</button>
+    </div>
+</body>
+</html>
